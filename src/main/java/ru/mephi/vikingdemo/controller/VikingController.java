@@ -4,14 +4,12 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
 import ru.mephi.vikingdemo.model.Viking;
 import ru.mephi.vikingdemo.service.VikingService;
 
 import java.util.List;
-import org.springframework.web.bind.annotation.PostMapping;
 
 @RestController
 @RequestMapping("/api/vikings")
@@ -51,5 +49,36 @@ public class VikingController {
     @PostMapping("/post")
     public void addViking(){
         vikingListener.testAdd();
+    }
+
+
+    @PostMapping
+    public Viking addViking(@RequestBody Viking viking) {
+        vikingService.addViking(viking);
+        vikingListener.notifyVikingAdded(viking);
+        return viking;
+    }
+
+    @DeleteMapping("/{index}")
+    public ResponseEntity<?> deleteVikingByIndex(@PathVariable int index) {
+        boolean deleted = vikingService.deleteViking(index);
+        if (deleted) {
+            vikingListener.notifyVikingDeleted(index);  // Уведомляем GUI об удалении
+            return ResponseEntity.ok().build();
+        } else {
+            return ResponseEntity.notFound().build();
+        }
+    }
+
+    @PutMapping("/{index}")
+    public ResponseEntity<Viking> updateViking(
+            @PathVariable int index,
+            @RequestBody Viking updatedViking) {
+        return vikingService.updateViking(index, updatedViking)
+                .map(viking -> {
+                    vikingListener.notifyVikingUpdated(index, viking);  // Уведомляем GUI об обновлении
+                    return ResponseEntity.ok(viking);
+                })
+                .orElse(ResponseEntity.notFound().build());
     }
 }
