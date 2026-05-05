@@ -49,7 +49,13 @@ public class VikingService {
 
     public Optional<Viking> updateViking(int index, Viking updatedViking) {
         if (index >= 0 && index < vikings.size() && updatedViking != null) {
-            Viking newViking = new Viking(updatedViking.name(), updatedViking.age(), updatedViking.heightCm(), updatedViking.hairColor(), updatedViking.beardStyle(), updatedViking.equipment());
+            Viking newViking = new Viking(
+                    updatedViking.name(),
+                    updatedViking.age(),
+                    updatedViking.heightCm(),
+                    updatedViking.hairColor(),
+                    updatedViking.beardStyle(),
+                    updatedViking.equipment());
             vikings.set(index, newViking);
             return Optional.of(newViking);
         }
